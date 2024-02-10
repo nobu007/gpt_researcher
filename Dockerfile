@@ -26,6 +26,9 @@ FROM gpt-researcher-install AS gpt-researcher
 RUN useradd -ms /bin/bash gpt-researcher \
     && chown -R gpt-researcher:gpt-researcher /usr/src/app
 
+RUN apt install -y curl
+RUN curl -fsSL https://ollama.com/install.sh | sh
+
 USER gpt-researcher
 
 COPY --chown=gpt-researcher:gpt-researcher ./ ./

@@ -5,7 +5,7 @@ from permchain.connection_inmemory import InMemoryPubSubConnection
 from permchain.pubsub import PubSub
 from permchain.topic import Topic
 
-'''
+"""
     This is the research team. 
     It is a group of autonomous agents that work together to answer a given question
     using a comprehensive research process that includes: 
@@ -15,7 +15,9 @@ from permchain.topic import Topic
         - Validating the report
         - Revising the report
         - Repeat until the report is satisfactory
-'''
+"""
+
+
 class ResearchTeam:
     def __init__(self, research_actor, editor_actor, reviser_actor):
         self.research_actor_instance = research_actor
@@ -40,19 +42,21 @@ class ResearchTeam:
             editor_inbox.subscribe()
             | self.editor_actor_instance.runnable
             # Depending on the output, different things should happen
-            | OpenAIFunctionsRouter({
-                # If revise is chosen, we send a push to the critique_inbox
-                "revise": (
+            | OpenAIFunctionsRouter(
+                {
+                    # If revise is chosen, we send a push to the critique_inbox
+                    "revise": (
                         {
                             "notes": itemgetter("notes"),
                             "draft": editor_inbox.current() | itemgetter("draft"),
                             "question": Topic.IN.current() | itemgetter("question"),
                         }
                         | reviser_inbox.publish()
-                ),
-                # If accepted, then we return
-                "accept": editor_inbox.current() | Topic.OUT.publish(),
-            })
+                    ),
+                    # If accepted, then we return
+                    "accept": editor_inbox.current() | Topic.OUT.publish(),
+                }
+            )
         )
 
         reviser_chain = (
